@@ -1,0 +1,43 @@
+
+name: Mortal Kombat 11 PS3 Homebrew Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Instalar ferramentas
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake zip
+
+      - name: Compilar projeto
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make -j2
+
+      - name: Preparar arquivos
+        run: |
+          mkdir -p output
+          if [ -f build/game.elf ]; then
+            cp build/game.elf output/
+          fi
+          zip -r MortalKombat11-PS3-Homebrew.zip output
+
+      - name: Publicar arquivos
+        uses: actions/upload-artifact@v4
+        with:
+          name: MortalKombat11-PS3-Homebrew
+          path: MortalKombat11-PS3-Homebrew.zip
+          
